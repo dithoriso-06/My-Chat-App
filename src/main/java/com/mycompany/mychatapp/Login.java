@@ -10,7 +10,7 @@ package com.mycompany.mychatapp;
  */
 public class Login {
     
-      private String username;
+     private String username;
     private String password;
     private String cellPhoneNumber;
     private String firstName;
@@ -89,17 +89,5 @@ public class Login {
         } else {
             return "Username or password incorrect, please try again.";
         }
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getCellPhoneNumber() {
-        return cellPhoneNumber;
     }
 }
