@@ -56,14 +56,14 @@ public class Login {
                                 String password, String cellPhoneNumber) {
 
         if (!checkUserName(username)) {
-            return "Username is not correctly formatted; please ensure that your username "
-                    + "contains an underscore and is no more than five characters in length.";
+            return "Username is not correctly formatted please ensure that your username "
+                    + "contains an underscore and is no more than five characters in length";
         }
 
         if (!checkPasswordComplexity(password)) {
-            return "Password is not correctly formatted; please ensure that the password "
-                    + "contains at least eight characters, a capital letter, a number, and "
-                    + "a special character.";
+            return "Password is not correctly formatted please ensure that the password "
+                    + "contains at least eight characters, a capital letter, a number and "
+                    + "a special character";
         }
 
         this.firstName = firstName;
@@ -73,7 +73,7 @@ public class Login {
         this.cellPhoneNumber = cellPhoneNumber;
         this.registered = true;
 
-        return "User " + username + " successfully registered.";
+        return "User " + username + " successfully registered";
     }
 
     public boolean loginUser(String username, String password) {
@@ -85,9 +85,9 @@ public class Login {
 
     public String returnLoginStatus(boolean loginSuccessful) {
         if (loginSuccessful) {
-            return "Welcome " + firstName + ", " + lastName + " it is great to see you again.";
+            return "Welcome " + firstName + ", " + lastName + " it is great to see you ";
         } else {
-            return "Username or password incorrect, please try again.";
+            return "Username or password incorrect please try again";
         }
     }
 }
