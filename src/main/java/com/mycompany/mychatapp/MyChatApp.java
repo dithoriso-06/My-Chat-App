@@ -25,14 +25,14 @@ public class MyChatApp {
         System.out.print("Enter your last name: ");
         String lastName = scanner.nextLine();
  
-        System.out.print("Enter a username (must contain an underscore, max 5 characters): ");
+        System.out.print("Enter a username (must contain an underscore max 5 characters): ");
         String username = scanner.nextLine();
  
         if (login.checkUserName(username)) {
-            System.out.println("Username successfully captured.");
+            System.out.println("Username successfully captured");
         } else {
-            System.out.println("Username is not correctly formatted; please ensure that your "
-                    + "username contains an underscore and is no more than five characters in length.");
+            System.out.println("Username is not correctly formatted please ensure that your "
+                    + "username contains an underscore and is no more than five characters in length");
         }
  
         System.out.print("Enter a password (min 8 characters, a capital letter, a number, "
@@ -42,19 +42,19 @@ public class MyChatApp {
         if (login.checkPasswordComplexity(password)) {
             System.out.println("Password successfully captured.");
         } else {
-            System.out.println("Password is not correctly formatted; please ensure that the "
-                    + "password contains at least eight characters, a capital letter, a number, "
+            System.out.println("Password is not correctly formatted please ensure that the "
+                    + "password contains at least eight characters, a capital letter, a number "
                     + "and a special character.");
         }
  
-        System.out.print("Enter your South African cell number (e.g. +27838968976): ");
+        System.out.print("Enter your South African cell number: ");
         String cellPhoneNumber = scanner.nextLine();
  
         if (login.checkCellPhoneNumber(cellPhoneNumber)) {
-            System.out.println("Cell phone number successfully added.");
+            System.out.println("Cell phone number successfully added");
         } else {
             System.out.println("Cell phone number incorrectly formatted or does not contain "
-                    + "international code; correct the number and try again.");
+                    + "international code correct the number and try again.");
         }
  
         // Attempt to actually register the user using all the entered details.
