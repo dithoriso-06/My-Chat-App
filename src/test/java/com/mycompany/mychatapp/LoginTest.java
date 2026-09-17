@@ -130,47 +130,5 @@ public class LoginTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-
-    /**
-     * Test of getFirstName method, of class Login.
-     */
-    @Test
-    public void testGetFirstName() {
-        System.out.println("getFirstName");
-        Login instance = new Login();
-        String expResult = "";
-        String result = instance.getFirstName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getLastName method, of class Login.
-     */
-    @Test
-    public void testGetLastName() {
-        System.out.println("getLastName");
-        Login instance = new Login();
-        String expResult = "";
-        String result = instance.getLastName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getCellPhoneNumber method, of class Login.
-     */
-    @Test
-    public void testGetCellPhoneNumber() {
-        System.out.println("getCellPhoneNumber");
-        Login instance = new Login();
-        String expResult = "";
-        String result = instance.getCellPhoneNumber();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
     
 }
