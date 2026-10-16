@@ -88,7 +88,7 @@ public class MyChatApp {
         Message message = new Message();
 
         System.out.println();
-        System.out.println("Welcome to QuickChat.");
+        System.out.println("Welcome to Dithoriso's QuickChat");
 
         // The user decides how many messages they want to enter
         int numMessages = 0;
