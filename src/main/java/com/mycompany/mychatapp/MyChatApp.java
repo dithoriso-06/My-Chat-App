@@ -162,7 +162,6 @@ public class MyChatApp {
 
             while (text.length() > 250) {
                 System.out.println("Please enter a message of less than 250 characters.");
-                System.out.println(message.checkMessageLength(text));
                 System.out.print("Enter your message again: ");
                 text = scanner.nextLine();
             }
@@ -172,35 +171,27 @@ public class MyChatApp {
             String messageHash = message.createMessageHash(messageID, i, text);
 
             // Send, disregard or store
-            int sendChoice = 0;
-            while (sendChoice == 0) {
-                System.out.println("What would you like to do with this message?");
-                System.out.println("1) Send Message");
-                System.out.println("2) Disregard Message");
-                System.out.println("3) Store Message to send later");
-                System.out.print("Choose an option (1-3): ");
-                String input = scanner.nextLine().trim();
+            System.out.println("What would you like to do with this message?");
+            System.out.println("1) Send Message");
+            System.out.println("2) Disregard Message");
+            System.out.println("3) Store Message to send later");
+            System.out.print("Choose an option (1-3): ");
+            String input = scanner.nextLine().trim();
 
-                if (input.equals("1")) {
-                    sendChoice = 1;
-                } else if (input.equals("2")) {
-                    sendChoice = 2;
-                } else if (input.equals("3")) {
-                    sendChoice = 3;
-                } else {
-                    System.out.println("Invalid option. Please enter 1, 2 or 3.");
-                }
+            while (!input.equals("1") && !input.equals("2") && !input.equals("3")) {
+                System.out.print("Invalid option. Please enter 1, 2 or 3: ");
+                input = scanner.nextLine().trim();
             }
 
-            String result = message.SentMessage(sendChoice, messageID, messageHash, recipient, text);
-            System.out.println(result);
+            int sendChoice = Integer.parseInt(input);
+            System.out.println(message.SentMessage(sendChoice, messageID, messageHash, recipient, text));
 
             if (sendChoice == 1) {
                 System.out.println(message.getMessageDetails(messageID, messageHash, recipient, text));
             } else if (sendChoice == 2) {
                 String deleteInput = scanner.nextLine().trim();
                 while (!deleteInput.equals("0")) {
-                    System.out.println(result);
+                    System.out.print("Press 0 to delete the message: ");
                     deleteInput = scanner.nextLine().trim();
                 }
                 System.out.println("Message deleted.");
