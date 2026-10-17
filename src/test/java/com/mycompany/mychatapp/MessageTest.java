@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MessageTest {
     
-    @Test
+     @Test
     public void testMessageLengthSuccess() {
         Message message = new Message();
         assertEquals("Message ready to send.",
@@ -52,13 +52,23 @@ public class MessageTest {
     public void testMessageHashes() {
         Message message = new Message();
 
-        String[] messageIDs = {"0012345678", "1234567890"};
-        String[] messages = {"Hi Mike, can you join us for dinner tonight?",
-                             "Hi Keegan, did you receive the payment?"};
-        String[] expectedHashes = {"00:0:HITONIGHT", "12:1:HIPAYMENT"};
+        // Loop through both test cases: i is the message number
+        for (int i = 0; i < 2; i++) {
+            String messageID;
+            String text;
+            String expectedHash;
 
-        for (int i = 0; i < messages.length; i++) {
-            assertEquals(expectedHashes[i], message.createMessageHash(messageIDs[i], i, messages[i]));
+            if (i == 0) {
+                messageID = "0012345678";
+                text = "Hi Mike, can you join us for dinner tonight?";
+                expectedHash = "00:0:HITONIGHT";
+            } else {
+                messageID = "1234567890";
+                text = "Hi Keegan, did you receive the payment?";
+                expectedHash = "12:1:HIPAYMENT";
+            }
+
+            assertEquals(expectedHash, message.createMessageHash(messageID, i, text));
         }
     }
 
@@ -69,6 +79,7 @@ public class MessageTest {
 
         assertEquals(10, messageID.length());
         assertTrue(message.checkMessageID(messageID));
+        assertEquals("Message ID generated: " + messageID, message.returnMessageIDText(messageID));
     }
 
     @Test
@@ -129,5 +140,4 @@ public class MessageTest {
         assertTrue(printed.contains("Hi Mike, can you join us for dinner tonight?"));
         assertFalse(printed.contains("Hi Keegan"));
     }
-
 }
