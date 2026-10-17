@@ -128,7 +128,7 @@ public class MyChatApp {
             } else if (menuChoice.equals("3")) {
                 System.out.println("Thank you for using Dithoriso's QuickChat. Goodbye!");
             } else {
-                System.out.println("Invalid option. Please enter 1, 2 or 3.");
+                System.out.println("Invalid option. Please enter 1, 2 or 3");
             }
         }
     }
