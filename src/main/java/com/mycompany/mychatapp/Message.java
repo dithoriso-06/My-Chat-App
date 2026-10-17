@@ -17,16 +17,23 @@ public class Message {
     private String allMessages = "";    // details of every sent message
     private String storedJson = "";     // JSON text of every stored message
 
-    // Creates a random ten digit message ID, one digit at a time
+    // Creates a random ten digit message ID using a loop and substring
     public String generateMessageID() {
         Random random = new Random();
+        String digits = "0123456789";
         String messageID = "";
 
         for (int i = 0; i < 10; i++) {
-            messageID = messageID + random.nextInt(10);
+            int position = random.nextInt(10);
+            messageID = messageID + digits.substring(position, position + 1);
         }
 
         return messageID;
+    }
+
+    // Returns the text shown when a message ID has been created
+    public String returnMessageIDText(String messageID) {
+        return "Message ID generated: " + messageID;
     }
 
     // Checks that the message ID is not more than ten characters
@@ -63,9 +70,25 @@ public class Message {
     public String createMessageHash(String messageID, int messageNumber, String message) {
         String firstTwo = messageID.substring(0, 2);
 
-        String[] words = message.trim().split(" ");
-        String firstWord = words[0].replaceAll("[^a-zA-Z0-9]", "");
-        String lastWord = words[words.length - 1].replaceAll("[^a-zA-Z0-9]", "");
+        String text = message.trim();
+        int firstSpace = text.indexOf(" ");
+        int lastSpace = text.lastIndexOf(" ");
+
+        String firstWord;
+        String lastWord;
+
+        if (firstSpace == -1) {
+            // The message is only one word
+            firstWord = text;
+            lastWord = text;
+        } else {
+            firstWord = text.substring(0, firstSpace);
+            lastWord = text.substring(lastSpace + 1);
+        }
+
+        // Remove punctuation such as commas and question marks
+        firstWord = firstWord.replaceAll("[^a-zA-Z0-9]", "");
+        lastWord = lastWord.replaceAll("[^a-zA-Z0-9]", "");
 
         return (firstTwo + ":" + messageNumber + ":" + firstWord + lastWord).toUpperCase();
     }
