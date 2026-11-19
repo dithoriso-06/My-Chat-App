@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class LoginTest {
     
-     @Test
+      @Test
     public void testUsernameCorrectlyFormatted() {
         Login login = new Login();
         assertTrue(login.checkUserName("kyl_1"));
@@ -58,7 +58,7 @@ public class LoginTest {
         Login login = new Login();
         String result = login.registerUser("Kyle", "Smith", "kyle!!!!!!",
                 "Ch&&sec@ke99!", "+27838968976");
-        assertEquals("Username is not correctly formatted please ensure that your username "
+        assertEquals("Username is not correctly formatted; please ensure that your username "
                 + "contains an underscore and is no more than five characters in length.", result);
     }
 
@@ -67,8 +67,8 @@ public class LoginTest {
         Login login = new Login();
         String result = login.registerUser("Kyle", "Smith", "kyl_1",
                 "password", "+27838968976");
-        assertEquals("Password is not correctly formatted please ensure that the password "
-                + "contains at least eight characters, a capital letter, a number and "
+        assertEquals("Password is not correctly formatted; please ensure that the password "
+                + "contains at least eight characters, a capital letter, a number, and "
                 + "a special character.", result);
     }
 
@@ -91,7 +91,7 @@ public class LoginTest {
         Login login = new Login();
         login.registerUser("Kyle", "Smith", "kyl_1", "Ch&&sec@ke99!", "+27838968976");
         boolean loggedIn = login.loginUser("kyl_1", "Ch&&sec@ke99!");
-        assertEquals("Welcome Kyle, Smith it is great to see you",
+        assertEquals("Welcome Kyle, Smith it is great to see you again.",
                 login.returnLoginStatus(loggedIn));
     }
 
@@ -103,5 +103,4 @@ public class LoginTest {
         assertEquals("Username or password incorrect, please try again.",
                 login.returnLoginStatus(loggedIn));
     }
-    
 }
