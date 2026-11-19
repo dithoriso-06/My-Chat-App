@@ -4,6 +4,7 @@
  */
 package com.mycompany.mychatapp;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.Scanner;
  * @author Student
  */
 public class Message {
-     private String fileName;    // the JSON file the stored messages are saved in
+  private String fileName;    // the JSON file the stored messages are saved in
 
     // Parallel arrays: the same index in each array belongs to the same message
     private String[] messageIDs = new String[1000];
@@ -405,7 +406,7 @@ public class Message {
             }
 
             fileReader.close();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             System.out.println("The stored messages could not be read: " + e.getMessage());
         }
     }
