@@ -18,7 +18,28 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MessageTest {
     
-     @Test
+     // Adds one message using a developer entry (no hard-coding in the app itself)
+    private void addTestMessage(Message message, String id, int number,
+                                String recipient, String text, String flag) {
+        String hash = message.createMessageHash(id, number, text);
+        message.addMessage(id, hash, recipient, text, flag);
+    }
+
+    // Adds the five test messages from the brief
+    private Message createTestMessages() {
+        Message message = new Message("testMessages.json");
+        addTestMessage(message, "1000000001", 0, "+27834557896", "Did you get the cake?", "Sent");
+        addTestMessage(message, "1000000002", 1, "+27838884567",
+                "Where are you? You are late! I have asked you to be on time.", "Stored");
+        addTestMessage(message, "1000000003", 2, "+27834484567", "Yohoooo, I am at your gate.", "Disregarded");
+        addTestMessage(message, "1000000004", 3, "0838884567", "It is dinner time!", "Sent");
+        addTestMessage(message, "1000000005", 4, "+27838884567", "Ok, I am leaving without you.", "Stored");
+        return message;
+    }
+
+    // ---------- Part 2 tests ----------
+
+    @Test
     public void testMessageLengthSuccess() {
         Message message = new Message();
         assertEquals("Message ready to send.",
@@ -78,6 +99,7 @@ public class MessageTest {
         String messageID = message.generateMessageID();
 
         assertEquals(10, messageID.length());
+        assertTrue(messageID.matches("[0-9]{10}"));
         assertTrue(message.checkMessageID(messageID));
         assertEquals("Message ID generated: " + messageID, message.returnMessageIDText(messageID));
     }
@@ -106,8 +128,8 @@ public class MessageTest {
 
     @Test
     public void testStoreMessage() {
-        Message message = new Message();
-        File file = new File("messages.json");
+        Message message = new Message("testMessages.json");
+        File file = new File("testMessages.json");
         file.delete();
 
         String result = message.SentMessage(3, "0012345678", "00:0:HITONIGHT",
@@ -139,5 +161,147 @@ public class MessageTest {
         String printed = message.printMessages();
         assertTrue(printed.contains("Hi Mike, can you join us for dinner tonight?"));
         assertFalse(printed.contains("Hi Keegan"));
+    }
+
+    // ---------- Part 3 tests (test data from the brief) ----------
+
+    @Test
+    public void testSentMessagesArrayPopulated() {
+        Message message = createTestMessages();
+
+        assertEquals("Did you get the cake?", message.getSentMessage(0));
+        assertEquals("It is dinner time!", message.getSentMessage(1));
+        assertEquals(2, message.returnTotalMessages());
+    }
+
+    @Test
+    public void testDisregardedMessagesArrayPopulated() {
+        Message message = createTestMessages();
+
+        assertEquals("Yohoooo, I am at your gate.", message.getDisregardedMessage(0));
+    }
+
+    @Test
+    public void testStoredMessagesArrayPopulated() {
+        Message message = createTestMessages();
+
+        assertEquals("Where are you? You are late! I have asked you to be on time.",
+                message.getStoredMessage(0));
+        assertEquals("Ok, I am leaving without you.", message.getStoredMessage(1));
+    }
+
+    @Test
+    public void testMessageIDAndHashArraysPopulated() {
+        Message message = createTestMessages();
+
+        assertEquals("1000000001", message.getMessageID(0));
+        assertEquals("1000000005", message.getMessageID(4));
+        assertEquals("10:0:DIDCAKE", message.getMessageHash(0));
+        assertEquals("10:1:WHERETIME", message.getMessageHash(1));
+        assertEquals("10:2:YOHOOOOGATE", message.getMessageHash(2));
+        assertEquals("10:3:ITTIME", message.getMessageHash(3));
+        assertEquals("10:4:OKYOU", message.getMessageHash(4));
+    }
+
+    @Test
+    public void testDisplaySenderAndRecipient() {
+        Message message = createTestMessages();
+
+        assertEquals("Sender: Kyle Smith, Recipient: +27838884567\n"
+                + "Sender: Kyle Smith, Recipient: +27838884567\n",
+                message.displaySenderAndRecipient("Kyle Smith"));
+    }
+
+    @Test
+    public void testDisplayLongestMessage() {
+        Message message = createTestMessages();
+
+        assertEquals("Where are you? You are late! I have asked you to be on time.",
+                message.longestStoredMessage());
+    }
+
+    @Test
+    public void testSearchForMessageID() {
+        Message message = createTestMessages();
+
+        assertEquals("Recipient: 0838884567, Message: It is dinner time!",
+                message.searchByMessageID("1000000004"));
+    }
+
+    @Test
+    public void testSearchForMessageIDNotFound() {
+        Message message = createTestMessages();
+
+        assertEquals("Message ID not found.", message.searchByMessageID("9999999999"));
+    }
+
+    @Test
+    public void testSearchByRecipient() {
+        Message message = createTestMessages();
+
+        assertEquals("Where are you? You are late! I have asked you to be on time.\n"
+                + "Ok, I am leaving without you.\n",
+                message.searchByRecipient("+27838884567"));
+    }
+
+    @Test
+    public void testSearchByRecipientNotFound() {
+        Message message = createTestMessages();
+
+        assertEquals("No messages found for this recipient.",
+                message.searchByRecipient("+27000000000"));
+    }
+
+    @Test
+    public void testDeleteMessageUsingHash() {
+        Message message = createTestMessages();
+
+        assertEquals("Message: \"Where are you? You are late! I have asked you to be on time.\" "
+                + "successfully deleted.", message.deleteMessageByHash("10:1:WHERETIME"));
+
+        // The message is gone from the arrays
+        assertEquals("Ok, I am leaving without you.", message.getStoredMessage(0));
+        assertEquals("Ok, I am leaving without you.\n", message.searchByRecipient("+27838884567"));
+    }
+
+    @Test
+    public void testDeleteMessageHashNotFound() {
+        Message message = createTestMessages();
+
+        assertEquals("Message hash not found.", message.deleteMessageByHash("00:0:NOTHERE"));
+    }
+
+    @Test
+    public void testDisplayReport() {
+        Message message = createTestMessages();
+        String report = message.displayReport();
+
+        // A sent message
+        assertTrue(report.contains("10:0:DIDCAKE"));
+        assertTrue(report.contains("+27834557896"));
+        assertTrue(report.contains("Did you get the cake?"));
+
+        // A stored message
+        assertTrue(report.contains("10:1:WHERETIME"));
+        assertTrue(report.contains("+27838884567"));
+        assertTrue(report.contains("Where are you? You are late! I have asked you to be on time."));
+
+        // A disregarded message is not in the report
+        assertFalse(report.contains("Yohoooo"));
+    }
+
+    @Test
+    public void testStoreAndReadJsonFile() {
+        Message message = createTestMessages();
+        message.storeMessage();
+
+        // A new Message object reads the stored messages from the JSON file
+        Message newMessage = new Message("testMessages.json");
+        newMessage.readStoredMessages();
+
+        assertEquals("Where are you? You are late! I have asked you to be on time.",
+                newMessage.getStoredMessage(0));
+        assertEquals("Ok, I am leaving without you.", newMessage.getStoredMessage(1));
+        assertEquals("10:1:WHERETIME", newMessage.getMessageHash(0));
     }
 }
