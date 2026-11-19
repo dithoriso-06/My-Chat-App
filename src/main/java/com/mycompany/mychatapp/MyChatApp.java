@@ -74,21 +74,25 @@ public class MyChatApp {
         boolean loginSuccessful = login.loginUser(loginUsername, loginPassword);
         System.out.println(login.returnLoginStatus(loginSuccessful));
 
-        // ---------- QuickChat (Part 2) - only for users who logged in ----------
+        // ---------- QuickChat (Parts 2 and 3) - only for users who logged in ----------
         if (loginSuccessful) {
-            runQuickChat(scanner);
+            String sender = firstName + " " + lastName;
+            runQuickChat(scanner, sender);
         }
 
         scanner.close();
     }
 
     // Shows the welcome message and the menu until the user quits
-    public static void runQuickChat(Scanner scanner) {
+    public static void runQuickChat(Scanner scanner, String sender) {
 
         Message message = new Message();
 
+        // Read the stored messages from the JSON file into the arrays
+        message.readStoredMessages();
+
         System.out.println();
-        System.out.println("Welcome to Dithoriso's QuickChat");
+        System.out.println("Welcome to QuickChat.");
 
         // The user decides how many messages they want to enter
         int numMessages = 0;
@@ -113,7 +117,8 @@ public class MyChatApp {
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
-            System.out.print("Choose an option (1-3): ");
+            System.out.println("4) Stored Messages");
+            System.out.print("Choose an option (1-4): ");
             menuChoice = scanner.nextLine().trim();
 
             if (menuChoice.equals("1")) {
@@ -126,9 +131,11 @@ public class MyChatApp {
             } else if (menuChoice.equals("2")) {
                 System.out.println("Coming Soon.");
             } else if (menuChoice.equals("3")) {
-                System.out.println("Thank you for using Dithoriso's QuickChat. Goodbye!");
+                System.out.println("Thank you for using QuickChat. Goodbye!");
+            } else if (menuChoice.equals("4")) {
+                storedMessagesMenu(scanner, message, sender);
             } else {
-                System.out.println("Invalid option. Please enter 1, 2 or 3");
+                System.out.println("Invalid option. Please enter 1, 2, 3 or 4.");
             }
         }
     }
@@ -143,7 +150,7 @@ public class MyChatApp {
 
             // Message ID
             String messageID = message.generateMessageID();
-            System.out.println("Message ID generated: " + messageID);
+            System.out.println(message.returnMessageIDText(messageID));
 
             // Recipient
             System.out.print("Enter the recipient's cell number (e.g. +27718693002): ");
@@ -203,5 +210,52 @@ public class MyChatApp {
         System.out.println("Messages sent:");
         System.out.println(message.printMessages());
         System.out.println("Total number of messages sent: " + message.returnTotalMessages());
+    }
+
+    // The Stored Messages menu (Part 3)
+    public static void storedMessagesMenu(Scanner scanner, Message message, String sender) {
+
+        String choice = "";
+
+        while (!choice.equals("8")) {
+            System.out.println();
+            System.out.println("--- Stored Messages ---");
+            System.out.println("1) Display all stored messages");
+            System.out.println("2) Display the sender and recipient of all stored messages");
+            System.out.println("3) Display the longest stored message");
+            System.out.println("4) Search for a message ID");
+            System.out.println("5) Search for all messages to a recipient");
+            System.out.println("6) Delete a message using the message hash");
+            System.out.println("7) Display the message report");
+            System.out.println("8) Back to the main menu");
+            System.out.print("Choose an option (1-8): ");
+            choice = scanner.nextLine().trim();
+
+            if (choice.equals("1")) {
+                System.out.println(message.displayStoredMessages());
+            } else if (choice.equals("2")) {
+                System.out.println(message.displaySenderAndRecipient(sender));
+            } else if (choice.equals("3")) {
+                System.out.println(message.longestStoredMessage());
+            } else if (choice.equals("4")) {
+                System.out.print("Enter the message ID: ");
+                String messageID = scanner.nextLine().trim();
+                System.out.println(message.searchByMessageID(messageID));
+            } else if (choice.equals("5")) {
+                System.out.print("Enter the recipient's cell number: ");
+                String recipient = scanner.nextLine().trim();
+                System.out.println(message.searchByRecipient(recipient));
+            } else if (choice.equals("6")) {
+                System.out.print("Enter the message hash: ");
+                String messageHash = scanner.nextLine().trim();
+                System.out.println(message.deleteMessageByHash(messageHash));
+            } else if (choice.equals("7")) {
+                System.out.println(message.displayReport());
+            } else if (choice.equals("8")) {
+                System.out.println("Returning to the main menu.");
+            } else {
+                System.out.println("Invalid option. Please enter a number from 1 to 8.");
+            }
+        }
     }
 }
