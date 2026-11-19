@@ -4,23 +4,25 @@
  */
 package com.mycompany.mychatapp;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  *
  * @author Student
  */
 public class Message {
-     private String fileName;                        // the JSON file the stored messages are saved in
+     private String fileName;    // the JSON file the stored messages are saved in
 
     // Parallel arrays: the same index in each array belongs to the same message
-    private String[] messageIDs = new String[1000];     // contains all the message IDs
-    private String[] messageHashes = new String[1000];  // contains all the message hashes
+    private String[] messageIDs = new String[1000];
+    private String[] messageHashes = new String[1000];
     private String[] recipients = new String[1000];
     private String[] messages = new String[1000];
-    private String[] flags = new String[1000];          // "Sent", "Disregarded" or "Stored"
+    private String[] flags = new String[1000];      // "Sent", "Disregarded" or "Stored"
     private int messageCount = 0;
 
     // Arrays that contain only the messages with each flag
@@ -45,8 +47,7 @@ public class Message {
     public String generateMessageID() {
         Random random = new Random();
         long number = 1000000000000L + (long) (random.nextDouble() * 9000000000000L);
-        String fullNumber = String.valueOf(number);
-        return fullNumber.substring(0, 10);
+        return String.valueOf(number).substring(0, 10);
     }
 
     // Returns the text shown when a message ID has been created
@@ -92,14 +93,10 @@ public class Message {
         int firstSpace = text.indexOf(" ");
         int lastSpace = text.lastIndexOf(" ");
 
-        String firstWord;
-        String lastWord;
+        String firstWord = text;
+        String lastWord = text;
 
-        if (firstSpace == -1) {
-            // The message is only one word
-            firstWord = text;
-            lastWord = text;
-        } else {
+        if (firstSpace != -1) {
             firstWord = text.substring(0, firstSpace);
             lastWord = text.substring(lastSpace + 1);
         }
@@ -151,7 +148,7 @@ public class Message {
             } else if (flags[i].equals("Disregarded")) {
                 disregardedMessages[disregardedCount] = messages[i];
                 disregardedCount = disregardedCount + 1;
-            } else if (flags[i].equals("Stored")) {
+            } else {
                 storedMessages[storedCount] = messages[i];
                 storedCount = storedCount + 1;
             }
@@ -198,20 +195,24 @@ public class Message {
         }
     }
 
-    // Returns the details of all the messages that were sent while the program is running
-    public String printMessages() {
-        if (sentCount == 0) {
-            return "No messages have been sent.";
-        }
-
+    // Returns the full details of every message that has the given flag
+    private String getDetailsByFlag(String flag) {
         String result = "";
         for (int i = 0; i < messageCount; i++) {
-            if (flags[i].equals("Sent")) {
+            if (flags[i].equals(flag)) {
                 result = result + getMessageDetails(messageIDs[i], messageHashes[i],
                         recipients[i], messages[i]) + "\n";
             }
         }
         return result;
+    }
+
+    // Returns the details of all the messages that were sent while the program is running
+    public String printMessages() {
+        if (sentCount == 0) {
+            return "No messages have been sent.";
+        }
+        return getDetailsByFlag("Sent");
     }
 
     // Returns the total number of messages sent
@@ -234,15 +235,15 @@ public class Message {
 
     // Returns the sender and the recipient of every stored message
     public String displaySenderAndRecipient(String sender) {
+        if (storedCount == 0) {
+            return "No stored messages.";
+        }
+
         String result = "";
         for (int i = 0; i < messageCount; i++) {
             if (flags[i].equals("Stored")) {
                 result = result + "Sender: " + sender + ", Recipient: " + recipients[i] + "\n";
             }
-        }
-
-        if (result.equals("")) {
-            return "No stored messages.";
         }
         return result;
     }
@@ -276,8 +277,7 @@ public class Message {
     public String searchByRecipient(String recipient) {
         String result = "";
         for (int i = 0; i < messageCount; i++) {
-            if (recipients[i].equals(recipient)
-                    && (flags[i].equals("Sent") || flags[i].equals("Stored"))) {
+            if (recipients[i].equals(recipient) && !flags[i].equals("Disregarded")) {
                 result = result + messages[i] + "\n";
             }
         }
@@ -326,48 +326,45 @@ public class Message {
         if (sentCount == 0) {
             report = report + "None\n";
         }
-        for (int i = 0; i < messageCount; i++) {
-            if (flags[i].equals("Sent")) {
-                report = report + getMessageDetails(messageIDs[i], messageHashes[i],
-                        recipients[i], messages[i]) + "\n";
-            }
-        }
+        report = report + getDetailsByFlag("Sent");
 
         report = report + "--- Stored Messages ---\n";
         if (storedCount == 0) {
             report = report + "None\n";
         }
-        for (int i = 0; i < messageCount; i++) {
-            if (flags[i].equals("Stored")) {
-                report = report + getMessageDetails(messageIDs[i], messageHashes[i],
-                        recipients[i], messages[i]) + "\n";
-            }
-        }
+        report = report + getDetailsByFlag("Stored");
 
         return report;
     }
 
     // Saves all the stored messages to a JSON file.
-    // Reference: Google (n.d.) Gson User Guide, https://github.com/google/gson/blob/main/UserGuide.md
     // Reference: Ecma International (n.d.) Introducing JSON, https://www.json.org/json-en.html
+    // Reference: Oracle (n.d.) FileWriter, https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/FileWriter.html
     public void storeMessage() {
-        JsonArray jsonArray = new JsonArray();
+        String json = "";
 
         for (int i = 0; i < messageCount; i++) {
             if (flags[i].equals("Stored")) {
-                JsonObject jsonMessage = new JsonObject();
-                jsonMessage.addProperty("messageID", messageIDs[i]);
-                jsonMessage.addProperty("messageHash", messageHashes[i]);
-                jsonMessage.addProperty("recipient", recipients[i]);
-                jsonMessage.addProperty("message", messages[i]);
-                jsonArray.add(jsonMessage);
+
+                // Escape backslashes and quotes so the JSON stays valid
+                String safeMessage = messages[i].replace("\\", "\\\\").replace("\"", "\\\"");
+
+                if (!json.equals("")) {
+                    json = json + ",\n";
+                }
+
+                json = json + "  {\n"
+                        + "    \"messageID\": \"" + messageIDs[i] + "\",\n"
+                        + "    \"messageHash\": \"" + messageHashes[i] + "\",\n"
+                        + "    \"recipient\": \"" + recipients[i] + "\",\n"
+                        + "    \"message\": \"" + safeMessage + "\"\n"
+                        + "  }";
             }
         }
 
         try {
             FileWriter writer = new FileWriter(fileName);
-            Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-            gson.toJson(jsonArray, writer);
+            writer.write("[\n" + json + "\n]");
             writer.close();
         } catch (IOException e) {
             System.out.println("The message could not be stored: " + e.getMessage());
@@ -375,8 +372,8 @@ public class Message {
     }
 
     // Reads the stored messages from the JSON file into the arrays.
-    // Reference: Google (n.d.) Gson User Guide, https://github.com/google/gson/blob/main/UserGuide.md
-    // Reference: Oracle (n.d.) FileReader, https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/FileReader.html
+    // Reference: Ecma International (n.d.) Introducing JSON, https://www.json.org/json-en.html
+    // Reference: Oracle (n.d.) Scanner, https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Scanner.html
     public void readStoredMessages() {
         File file = new File(fileName);
 
@@ -385,22 +382,41 @@ public class Message {
         }
 
         try {
-            FileReader reader = new FileReader(file);
-            JsonArray jsonArray = JsonParser.parseReader(reader).getAsJsonArray();
-            reader.close();
+            Scanner fileReader = new Scanner(file);
 
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JsonObject jsonMessage = jsonArray.get(i).getAsJsonObject();
+            String messageID = "";
+            String messageHash = "";
+            String recipient = "";
 
-                String messageID = jsonMessage.get("messageID").getAsString();
-                String messageHash = jsonMessage.get("messageHash").getAsString();
-                String recipient = jsonMessage.get("recipient").getAsString();
-                String message = jsonMessage.get("message").getAsString();
+            // Each line of the file holds one value, so we read line by line
+            while (fileReader.hasNextLine()) {
+                String line = fileReader.nextLine().trim();
 
-                addMessage(messageID, messageHash, recipient, message, "Stored");
+                if (line.startsWith("\"messageID\"")) {
+                    messageID = getJsonValue(line);
+                } else if (line.startsWith("\"messageHash\"")) {
+                    messageHash = getJsonValue(line);
+                } else if (line.startsWith("\"recipient\"")) {
+                    recipient = getJsonValue(line);
+                } else if (line.startsWith("\"message\"")) {
+                    // The message is the last value of each entry, so we add it to the arrays now
+                    addMessage(messageID, messageHash, recipient, getJsonValue(line), "Stored");
+                }
             }
-        } catch (Exception e) {
+
+            fileReader.close();
+        } catch (FileNotFoundException e) {
             System.out.println("The stored messages could not be read: " + e.getMessage());
         }
+    }
+
+    // Takes one line of the JSON file and returns the value between the quotes
+    private String getJsonValue(String line) {
+        int start = line.indexOf(": \"") + 3;
+        int end = line.lastIndexOf("\"");
+        String value = line.substring(start, end);
+
+        // Turn the escaped characters back into normal ones
+        return value.replace("\\\"", "\"").replace("\\\\", "\\");
     }
 }
